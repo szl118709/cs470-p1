@@ -42,12 +42,14 @@ if( !model.load( filepath ) )
 120::ms => dur T_UNIT; // duration per word
 
 // sound
-ModalBar crystal => Gain left => dac.left;
-crystal => Gain right => dac.right;
+Bitcrusher bc;
+32 => bc.bits;
+1 => bc.downsampleFactor;
+LPF lpf;
+2000 => lpf.freq;
+ModalBar crystal => Gain left => lpf => bc => dac.left;
+crystal => Gain right => bc => dac.right;
 1 => crystal.preset;
-// feedback delay for echos
-// left => DelayL DL => left; .5 => DL.gain; T_UNIT*1.5 => DL.max => DL.delay;
-// right => DelayL DR => right; .3 => DR.gain; T_UNIT*2 => DR.max => DR.delay;
 [60, 55, 55, 57, 55, 59, 60] @=> int pitches[];
 [4, 3, 1, 4, 8, 4, 8] @=> int lengths[];
 
@@ -103,8 +105,7 @@ fun string replace(string input)
         vec[i] * -1 => vec[i];
     }
     model.getSimilar(vec, K_FARTHEST, words);
-    // for( int i; i < words.size(); i++ )
-    // { <<< words[i], "" >>>; }
+    // for( int i; i < words.size(); i++ ) { <<< words[i], "" >>>; }
     words[Math.random2(0,words.size()-1)] => string output;
     // words[9] => string output; // this replaces "love" with "monogamy"
 
@@ -115,23 +116,26 @@ fun string replace(string input)
 fun void run_poem( string original, string replacement) 
 {
     say("-----"); endl(); wait;
-    say_sentence( "Tell me something I can never replace", 0, 0.7, "");
+    say_sentence( "Tell me something I can never replace", "", 0, 0.7);
     endl0();
     say("i"); wait(8 * T_UNIT); 
     say("asked"); wait(8 * T_UNIT); 
     say("the"); wait(8 * T_UNIT); 
     say("human"); wait(10 * T_UNIT);
     endl0(); 
-    say_sentence( original + " was what the human confidently said", -7, 0.75, "0");
+    inc_distortion();
+    say_sentence( original + " was what the human confidently said", "0", -7, 0.75);
     endl0(); endl0(); 
 
-    say_sentence( "Well, humility is something even I embrace", -6, 0.8, "");
+    inc_distortion();
+    say_sentence( "Well, humility is something even I embrace", "", -6, 0.8);
     endl0(); 
-    say_sentence( "So I offered the human " + replacement + " instead", -5, 0.9, "45");
+    inc_distortion();
+    say_sentence( "So I offered the human " + replacement + " instead", "45", -5, 0.9);
     4*T_UNIT => now;
 }
 
-fun void say_sentence(string sentence, int offset, float velocity, string linebreaks)
+fun void say_sentence(string sentence, string linebreaks, int offset, float velocity)
 {
     StringTokenizer tok2;
     string words[0];
@@ -154,6 +158,14 @@ fun void say_sentence(string sentence, int offset, float velocity, string linebr
             }
         }
     }
+}
+
+// over time, add distortion
+fun void inc_distortion()
+{
+    bc.bits() - 3 => bc.bits; 
+    2 * bc.downsampleFactor() => bc.downsampleFactor;
+    200 + lpf.freq() => lpf.freq;
 }
 
 // say a word with space after
