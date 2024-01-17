@@ -1,13 +1,12 @@
 //------------------------------------------------------------------------------
 // name: poem-anti-replacement.ck
-// desc: they just keep coming; more sus poem word2vec examples
 //
 // version: need chuck version 1.5.0.0 or higher
 // sorting: part of ChAI (ChucK for AI)
 //
 // NOTE: because this example needs ConsoleInput, it needs to
 //       run command line chuck
-//       > chuck poem-ungenerate.ck
+//       > chuck poem-anti-replacement.ck
 //
 // NOTE: need a pre-trained word vector model, e.g., from
 //       https://chuck.stanford.edu/chai/data/glove/
@@ -46,7 +45,6 @@ Bitcrusher bc;
 32 => bc.bits;
 1 => bc.downsampleFactor;
 LPF lpf;
-2000 => lpf.freq;
 ModalBar crystal => Gain left => lpf => bc => dac.left;
 crystal => Gain right => bc => dac.right;
 1 => crystal.preset;
@@ -72,24 +70,31 @@ chout.flush();
 // new line
 endl();
 
-"Enter something that can never be replaced by AI => " => prompt;
-// prompt
-in.prompt( prompt ) => now;
+while(true) {
+    32 => bc.bits;
+    1 => bc.downsampleFactor;
+    2000 => lpf.freq;
+    "Enter something that can never be replaced by AI => " => prompt;
+    // prompt
+    in.prompt( prompt ) => now;
 
-// clear tokens array
-line.clear();
-// get the input line as one string; send to tokenizer
-tok.set( in.getLine() );
-// tokenize line into words separated by white space
-while( tok.more() )
-{
-    // put into array (lowercased)
-    line << tok.next().lower();
-}
+    // clear tokens array
+    line.clear();
+    // get the input line as one string; send to tokenizer
+    tok.set( in.getLine() );
+    // tokenize line into words separated by white space
+    while( tok.more() )
+    {
+        // put into array (lowercased)
+        line << tok.next().lower();
+    }
 
-for (int i; i < line.size(); i++) {
-    replace( line[i] ) => string replacement;
-    run_poem(line[i], replacement);
+    if (line.size()) {
+        for (int i; i < line.size(); i++) {
+            replace( line[i] ) => string replacement;
+            run_poem(line[i], replacement);
+        }
+    } 
 }
 
 fun string replace(string input) 
@@ -118,20 +123,21 @@ fun void run_poem( string original, string replacement)
     say("-----"); endl(); wait;
     say_sentence( "Tell me something I can never replace", "", 0, 0.7);
     endl0();
-    say("i"); wait(8 * T_UNIT); 
+    say("I"); wait(8 * T_UNIT); 
     say("asked"); wait(8 * T_UNIT); 
     say("the"); wait(8 * T_UNIT); 
     say("human"); wait(10 * T_UNIT);
     endl0(); 
     inc_distortion();
-    say_sentence( original + " was what the human confidently said", "0", -7, 0.75);
+    say_sentence( original.upper() + " was what the human confidently said", "0", -7, 0.75);
     endl0(); endl0(); 
 
     inc_distortion();
     say_sentence( "Well, humility is something even I embrace", "", -6, 0.8);
     endl0(); 
     inc_distortion();
-    say_sentence( "So I offered the human " + replacement + " instead", "45", -5, 0.9);
+    say_sentence( "So I offered the human " + replacement.upper() + " instead", "45", -5, 0.9);
+    endl0(); endl0();
     4*T_UNIT => now;
 }
 
@@ -143,8 +149,8 @@ fun void say_sentence(string sentence, string linebreaks, int offset, float velo
     // tokenize line into words separated by white space
     while( tok2.more() )
     {
-        // put into array (lowercased)
-        words << tok2.next().lower();
+        // put into array
+        words << tok2.next();
     }
     // say the words and play the sounds
     for (int i; i < words.size(); i++) {
