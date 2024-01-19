@@ -174,6 +174,8 @@ fun void inc_distortion()
     200 + lpf.freq() => lpf.freq;
 }
 
+
+// ----- helpers -----
 // say a word with space after
 fun void say( string word )
 {
@@ -200,6 +202,7 @@ fun void wait( dur T )
     T => now;
 }
 
+// just a new line
 fun void endl0() {
     chout <= IO.newline(); chout.flush();
 }
