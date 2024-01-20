@@ -123,10 +123,10 @@ fun void run_poem( string original, string replacement)
     say("-----"); endl(); wait;
     say_sentence( "Tell me something I can never replace", "", 0, 0.7);
     endl0();
-    say("I"); wait(8 * T_UNIT); 
-    say("asked"); wait(8 * T_UNIT); 
-    say("the"); wait(8 * T_UNIT); 
-    say("human"); wait(10 * T_UNIT);
+    say("I"); play(48, 0.7); wait(8 * T_UNIT); 
+    say("asked"); play(48, 0.7); wait(8 * T_UNIT); 
+    say("the"); play(48, 0.7); wait(8 * T_UNIT); 
+    say("human"); play(48, 0.7); wait(8 * T_UNIT);
     endl0(); 
     inc_distortion();
     say_sentence( original.upper() + " was what the human confidently said", "0", -7, 0.75);

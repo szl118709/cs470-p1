@@ -34,14 +34,13 @@ if( !model.load( filepath ) )
 }
 
 // timing
-200::ms => dur T_UNIT; // duration per word
+220::ms => dur T_UNIT; // duration per word
 8 => int UNIT_PER_CHORD;
 
 // sound
 // rhodey does the solo
-Rhodey rho => dac;
-[67, 69, 71, 72, 74, 76, 79] @=> int pitches[];
-[1, 2, 2, 2, 3, 4, 4, 4, 8] @=> int lengths[];
+[67, 69, 72, 74, 76, 79] @=> int pitches[];
+[1, 2, 2, 2, 3, 4, 4, 4] @=> int lengths[];
 // krystlChr does the background
 // array of krystal choir instruments
 6 => int NUM_KRYSTLS;
@@ -56,6 +55,8 @@ for (int i; i < NUM_KRYSTLS; i++) {
 }
 // turn down the volum... for safety
 0.12 => r[0].gain => r[1].gain; 
+Rhodey rho => Gain g => dac;
+0.4 => g.gain;
 
 // make a ConsoleInput
 ConsoleInput in;
@@ -136,7 +137,7 @@ while( true )
             say("was"); play_wait();
             say("a"); play_wait();
             say("good"); play_wait();
-            say("movie."); play_wait();
+            say("movie."); play(60);
             // endline
             endl(); endl();
 
